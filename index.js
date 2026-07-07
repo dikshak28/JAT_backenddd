@@ -12,6 +12,9 @@ app.use(express.static(path.join(__dirname, "..")));
 app.use(express.json());
 app.use(cors());
 
+const paymentRoutes = require("./payment");
+app.use("/api/payment", paymentRoutes);
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI, {})
@@ -112,7 +115,7 @@ const sendEmail = async (subject, formData) => {
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: "sanikaghorpade40@gmail.com",
+    to: process.env.NOTIFICATION_EMAIL,
     subject: subject,
     text: JSON.stringify(formData, null, 2),
   };
