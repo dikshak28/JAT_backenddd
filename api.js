@@ -50,7 +50,6 @@ router.post("/volunteer", async (req, res) => {
         await newVolunteer.save();
         console.log(res);
         res.status(201).json({ message: "Volunteer form submitted successfully" });
-        res.status(200).json({ message: "Volunteer form submitted successfully" });
     } catch (error) {
         res.status(500).json({ error: "Error submitting volunteer form" });
     }

@@ -1,5 +1,8 @@
+const crypto = require("crypto");
 const express = require("express");
 const Razorpay = require("razorpay");
+
+
 
 const router = express.Router();
 
@@ -26,7 +29,11 @@ router.post("/create-order", async (req, res) => {
 
     const order = await razorpay.orders.create(options);
 
-    res.status(200).json(order);
+    res.status(200).json({
+  ...order,
+  key_id: process.env.RAZORPAY_KEY_ID,
+});
+
   } catch (err) {
     console.error("Razorpay order creation error:", err);
 
@@ -34,6 +41,27 @@ router.post("/create-order", async (req, res) => {
       error: "Unable to create payment order",
     });
   }
+});
+
+router.post("/verify-payment", (req, res) => {
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+  } = req.body;
+
+  const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+  const expectedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .update(body)
+    .digest("hex");
+
+  if (expectedSignature === razorpay_signature) {
+    return res.json({ success: true });
+  }
+
+  res.status(400).json({ success: false });
 });
 
 module.exports = router;

@@ -32,8 +32,9 @@ const VolunteerSchema = new mongoose.Schema({
 const DonationSchema = new mongoose.Schema({
   name: String,
   email: String,
+  phone: String,
   amount: Number,
-  message: String,
+  transactionId: String,
 });
 
 const contactSchema = new mongoose.Schema({
@@ -94,7 +95,7 @@ app.post("/api/contacts", async (req, res) => {
     const newContact = new Contact(req.body);
     await newContact.save();
 
-    sendEmail("New Donation Received", newContact);
+    sendEmail("New Contact Form Submission", newContact);
 
     res.status(201).json({ message: "Contact form submitted successfully" });
   } catch (error) {
