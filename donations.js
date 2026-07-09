@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const generateReceipt = require("../utils/generateReceipt");
+const generateReceipt = require("./utils/generateReceipt");
 const nodemailer = require("nodemailer");
 
 router.post("/donate", async (req, res) => {
