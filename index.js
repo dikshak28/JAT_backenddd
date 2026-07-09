@@ -15,7 +15,7 @@ app.use(cors());
 const paymentRoutes = require("./payment");
 app.use("/api/payment", paymentRoutes);
 
-const donationRoutes = require("./routes/donations");
+const donationRoutes = require("./donations");
 app.use("/api/donations", donationRoutes);
 
 // Connect to MongoDB
