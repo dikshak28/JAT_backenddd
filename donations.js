@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const generateReceipt = require("./utils/generateReceipt");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+const fs = require("fs");
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 router.post("/donate", async (req, res) => {
     try {
@@ -16,26 +19,26 @@ router.post("/donate", async (req, res) => {
             transactionId
         );
 
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-        });
+        const receiptFile = fs.readFileSync(receiptPath);
 
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
+        const { data, error } = await resend.emails.send({
+            from: "Jeevan Ankur Trust <receipts@jeevanankurtrust.org>",
             to: email,
             subject: "Donation Receipt - Jeevan Ankur Trust",
             text: "Thank you for your donation! Your receipt is attached.",
             attachments: [
                 {
                     filename: "Donation_Receipt.pdf",
-                    path: receiptPath,
+                    content: receiptFile,
                 },
             ],
         });
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        console.log("✅ Receipt email sent:", data);
 
         res.status(200).json({
             message: "Donation successful. Receipt sent!",
