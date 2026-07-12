@@ -2,6 +2,109 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
 
+function numberToWords(number) {
+  const ones = [
+    "",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+    "Ten",
+    "Eleven",
+    "Twelve",
+    "Thirteen",
+    "Fourteen",
+    "Fifteen",
+    "Sixteen",
+    "Seventeen",
+    "Eighteen",
+    "Nineteen",
+  ];
+
+  const tens = [
+    "",
+    "",
+    "Twenty",
+    "Thirty",
+    "Forty",
+    "Fifty",
+    "Sixty",
+    "Seventy",
+    "Eighty",
+    "Ninety",
+  ];
+
+  function convertBelowHundred(num) {
+    if (num < 20) {
+      return ones[num];
+    }
+
+    return (
+      tens[Math.floor(num / 10)] +
+      (num % 10 !== 0 ? " " + ones[num % 10] : "")
+    );
+  }
+
+  function convertBelowThousand(num) {
+    let words = "";
+
+    if (num >= 100) {
+      words += ones[Math.floor(num / 100)] + " Hundred";
+
+      if (num % 100 !== 0) {
+        words += " ";
+      }
+    }
+
+    words += convertBelowHundred(num % 100);
+
+    return words.trim();
+  }
+
+  number = Math.floor(Number(number));
+
+  if (number === 0) {
+    return "Zero";
+  }
+
+  let words = "";
+
+  if (number >= 10000000) {
+    words +=
+      convertBelowThousand(Math.floor(number / 10000000)) +
+      " Crore ";
+
+    number %= 10000000;
+  }
+
+  if (number >= 100000) {
+    words +=
+      convertBelowThousand(Math.floor(number / 100000)) +
+      " Lakh ";
+
+    number %= 100000;
+  }
+
+  if (number >= 1000) {
+    words +=
+      convertBelowThousand(Math.floor(number / 1000)) +
+      " Thousand ";
+
+    number %= 1000;
+  }
+
+  if (number > 0) {
+    words += convertBelowThousand(number);
+  }
+
+  return words.trim();
+}
+
 function generateReceipt(name, amount, date, transactionId) {
   return new Promise((resolve, reject) => {
     const receiptsDir = path.join(__dirname, "../receipts");
@@ -15,7 +118,11 @@ function generateReceipt(name, amount, date, transactionId) {
       `receipt_${transactionId}.pdf`
     );
 
-    const doc = new PDFDocument();
+    const doc = new PDFDocument({
+      size: "A4",
+      margin: 50,
+    });
+
     const stream = fs.createWriteStream(receiptPath);
 
     stream.on("finish", () => resolve(receiptPath));
@@ -23,29 +130,278 @@ function generateReceipt(name, amount, date, transactionId) {
 
     doc.pipe(stream);
 
-    doc.fontSize(22).text("Jeevan Ankur Trust", {
-      align: "center",
-    });
+    const pageWidth = doc.page.width;
+    const contentLeft = 60;
+    const contentRight = pageWidth - 60;
+    const contentWidth = contentRight - contentLeft;
 
-    doc.moveDown();
+    const receiptNumber = `JAT-${Date.now()
+      .toString()
+      .slice(-8)}`;
 
-    doc.fontSize(18).text("Donation Receipt", {
-      align: "center",
-    });
+    const formattedDate = new Date(date).toLocaleDateString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }
+    );
 
-    doc.moveDown(2);
+    const numericAmount = Number(amount);
+    const amountWords = numberToWords(numericAmount);
 
-    doc.fontSize(12);
-    doc.text(`Donor Name: ${name}`);
-    doc.text(`Donation Amount: Rs. ${amount}`);
-    doc.text(`Date: ${date}`);
-    doc.text(`Transaction ID: ${transactionId}`);
+    // Outer receipt border
+    doc
+      .lineWidth(1.5)
+      .rect(
+        35,
+        35,
+        pageWidth - 70,
+        doc.page.height - 70
+      )
+      .stroke();
 
-    doc.moveDown(2);
+    // Header
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(24)
+      .text("JEEVAN ANKUR TRUST", 50, 60, {
+        align: "center",
+      });
 
-    doc.text("Thank you for your generous donation!", {
-      align: "center",
-    });
+    doc
+      .font("Helvetica")
+      .fontSize(9)
+      .text(
+        "Room 405, Bldg. No. 1, Ashtvinayak Society, Opp RNA Park,",
+        50,
+        94,
+        {
+          align: "center",
+        }
+      );
+
+    doc.text(
+      "Mhada Colony, Vashinaka, Chembur, Mumbai - 400074",
+      {
+        align: "center",
+      }
+    );
+
+    doc
+      .moveTo(contentLeft, 125)
+      .lineTo(contentRight, 125)
+      .lineWidth(1)
+      .stroke();
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(16)
+      .text("DONATION RECEIPT", 50, 140, {
+        align: "center",
+      });
+
+    // Receipt number and date
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(10)
+      .text(
+        `Receipt No.: ${receiptNumber}`,
+        contentLeft,
+        180
+      );
+
+    doc.text(
+      `Date: ${formattedDate}`,
+      contentRight - 150,
+      180,
+      {
+        width: 150,
+        align: "right",
+      }
+    );
+
+    doc
+      .moveTo(contentLeft, 205)
+      .lineTo(contentRight, 205)
+      .stroke();
+
+    // Receipt wording
+    doc
+      .font("Helvetica")
+      .fontSize(12)
+      .text(
+        "Received with thanks from",
+        contentLeft,
+        235
+      );
+
+    doc
+      .font("Helvetica-Bold")
+      .text(name, contentLeft, 258);
+
+    doc
+      .moveTo(contentLeft, 276)
+      .lineTo(contentRight, 276)
+      .lineWidth(0.5)
+      .stroke();
+
+    doc
+      .font("Helvetica")
+      .fontSize(12)
+      .text("a sum of Rupees", contentLeft, 305);
+
+    doc
+      .font("Helvetica-Bold")
+      .text(
+        `${amountWords} Rupees Only`,
+        contentLeft,
+        328
+      );
+
+    doc
+      .moveTo(contentLeft, 346)
+      .lineTo(contentRight, 346)
+      .stroke();
+
+    // Payment details section
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(11)
+      .text("PAYMENT DETAILS", contentLeft, 380);
+
+    doc
+      .font("Helvetica")
+      .fontSize(11)
+      .text(
+        "Payment Mode:",
+        contentLeft,
+        410
+      );
+
+    doc
+      .font("Helvetica-Bold")
+      .text(
+        "Online Payment - Razorpay",
+        contentLeft + 120,
+        410
+      );
+
+    doc
+      .font("Helvetica")
+      .text(
+        "Payment ID:",
+        contentLeft,
+        438
+      );
+
+    doc
+      .font("Helvetica-Bold")
+      .text(
+        transactionId,
+        contentLeft + 120,
+        438,
+        {
+          width: contentWidth - 120,
+        }
+      );
+
+    doc
+      .font("Helvetica")
+      .text("Towards:", contentLeft, 466);
+
+    doc
+      .font("Helvetica-Bold")
+      .text(
+        "Voluntary Donation",
+        contentLeft + 120,
+        466
+      );
+
+    // Amount box
+    doc
+      .lineWidth(1.5)
+      .rect(contentLeft, 510, 210, 65)
+      .stroke();
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(11)
+      .text("DONATION AMOUNT", contentLeft + 15, 522);
+
+    doc
+      .fontSize(22)
+      .text(
+        `Rs. ${numericAmount.toLocaleString("en-IN")}`,
+        contentLeft + 15,
+        542
+      );
+
+    // Signature section
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(12)
+      .text(
+        "For JEEVAN ANKUR TRUST",
+        contentRight - 210,
+        530,
+        {
+          width: 210,
+          align: "center",
+        }
+      );
+
+    doc
+      .moveTo(contentRight - 180, 620)
+      .lineTo(contentRight - 30, 620)
+      .lineWidth(0.5)
+      .stroke();
+
+    doc
+      .font("Helvetica")
+      .fontSize(10)
+      .text(
+        "Authorised Signatory",
+        contentRight - 210,
+        628,
+        {
+          width: 210,
+          align: "center",
+        }
+      );
+
+    // Footer
+    doc
+      .moveTo(contentLeft, 690)
+      .lineTo(contentRight, 690)
+      .stroke();
+
+    doc
+      .font("Helvetica")
+      .fontSize(9)
+      .text(
+        "This is a computer-generated acknowledgement of donation.",
+        contentLeft,
+        705,
+        {
+          width: contentWidth,
+          align: "center",
+        }
+      );
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(9)
+      .text(
+        "Thank you for your generous support.",
+        contentLeft,
+        722,
+        {
+          width: contentWidth,
+          align: "center",
+        }
+      );
 
     doc.end();
   });
