@@ -1,6 +1,8 @@
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
+const logoPath = path.join(__dirname, "../assets/logo.png");
+const stampPath = path.join(__dirname, "../assets/stamp.jpeg");
 
 function numberToWords(number) {
   const ones = [
@@ -135,9 +137,7 @@ function generateReceipt(name, amount, date, transactionId) {
     const contentRight = pageWidth - 60;
     const contentWidth = contentRight - contentLeft;
 
-    const receiptNumber = `JAT-${Date.now()
-      .toString()
-      .slice(-8)}`;
+const receiptNumber = `JAT-${new Date().getFullYear()}-${transactionId.slice(-6).toUpperCase()}`;
 
     const formattedDate = new Date(date).toLocaleDateString(
       "en-IN",
@@ -163,44 +163,73 @@ function generateReceipt(name, amount, date, transactionId) {
       .stroke();
 
     // Header
-    doc
-      .font("Helvetica-Bold")
-      .fontSize(24)
-      .text("JEEVAN ANKUR TRUST", 50, 60, {
-        align: "center",
-      });
+// ---------------- Logo ----------------
 
-    doc
-      .font("Helvetica")
-      .fontSize(9)
-      .text(
-        "Room 405, Bldg. No. 1, Ashtvinayak Society, Opp RNA Park,",
+if (fs.existsSync(logoPath)) {
+    try {
+        doc.image(
+            logoPath,
+            pageWidth / 2 - 35,
+            48,
+            {
+                width: 70
+            }
+        );
+    } catch (err) {
+        console.error("Could not load logo:", err);
+    }
+}
+
+// ---------------- Trust Name ----------------
+
+doc
+    .font("Helvetica-Bold")
+    .fontSize(22)
+    .text(
+        "JEEVAN ANKUR TRUST",
         50,
-        94,
+        125,
         {
-          align: "center",
+            align: "center"
         }
-      );
-
-    doc.text(
-      "Mhada Colony, Vashinaka, Chembur, Mumbai - 400074",
-      {
-        align: "center",
-      }
     );
 
-    doc
-      .moveTo(contentLeft, 125)
-      .lineTo(contentRight, 125)
-      .lineWidth(1)
-      .stroke();
+doc
+    .font("Helvetica")
+    .fontSize(9)
+    .text(
+        "Room 405, Bldg. No. 1, Ashtvinayak Society, Opp RNA Park,",
+        50,
+        150,
+        {
+            align: "center"
+        }
+    );
 
-    doc
-      .font("Helvetica-Bold")
-      .fontSize(16)
-      .text("DONATION RECEIPT", 50, 140, {
-        align: "center",
-      });
+doc.text(
+    "Mhada Colony, Vashinaka, Chembur, Mumbai - 400074",
+    {
+        align: "center"
+    }
+);
+
+doc
+    .moveTo(contentLeft, 180)
+    .lineTo(contentRight, 180)
+    .lineWidth(1)
+    .stroke();
+
+doc
+    .font("Helvetica-Bold")
+    .fontSize(16)
+    .text(
+        "DONATION RECEIPT",
+        50,
+        195,
+        {
+            align: "center"
+        }
+    );
 
     // Receipt number and date
     doc
@@ -209,13 +238,13 @@ function generateReceipt(name, amount, date, transactionId) {
       .text(
         `Receipt No.: ${receiptNumber}`,
         contentLeft,
-        180
+        235
       );
 
     doc.text(
       `Date: ${formattedDate}`,
       contentRight - 150,
-      180,
+      235,
       {
         width: 150,
         align: "right",
@@ -223,8 +252,8 @@ function generateReceipt(name, amount, date, transactionId) {
     );
 
     doc
-      .moveTo(contentLeft, 205)
-      .lineTo(contentRight, 205)
+      .moveTo(contentLeft, 260)
+      .lineTo(contentRight, 260)
       .stroke();
 
     // Receipt wording
@@ -234,35 +263,35 @@ function generateReceipt(name, amount, date, transactionId) {
       .text(
         "Received with thanks from",
         contentLeft,
-        235
+        290
       );
 
     doc
       .font("Helvetica-Bold")
-      .text(name, contentLeft, 258);
+      .text(name, contentLeft, 313);
 
     doc
-      .moveTo(contentLeft, 276)
-      .lineTo(contentRight, 276)
+      .moveTo(contentLeft, 331)
+      .lineTo(contentRight, 331)
       .lineWidth(0.5)
       .stroke();
 
     doc
       .font("Helvetica")
       .fontSize(12)
-      .text("a sum of Rupees", contentLeft, 305);
+      .text("a sum of Rupees", contentLeft, 360);
 
     doc
       .font("Helvetica-Bold")
       .text(
         `${amountWords} Rupees Only`,
         contentLeft,
-        328
+        383
       );
 
     doc
-      .moveTo(contentLeft, 346)
-      .lineTo(contentRight, 346)
+      .moveTo(contentLeft, 401)
+      .lineTo(contentRight, 401)
       .stroke();
 
     // Payment details section
@@ -339,37 +368,49 @@ function generateReceipt(name, amount, date, transactionId) {
       );
 
     // Signature section
-    doc
-      .font("Helvetica-Bold")
-      .fontSize(12)
-      .text(
-        "For JEEVAN ANKUR TRUST",
-        contentRight - 210,
-        530,
-        {
-          width: 210,
-          align: "center",
-        }
-      );
+doc
+  .font("Helvetica-Bold")
+  .fontSize(12)
+  .text(
+    "For JEEVAN ANKUR TRUST",
+    contentRight - 210,
+    530,
+    {
+      width: 210,
+      align: "center",
+    }
+  );
 
-    doc
-      .moveTo(contentRight - 180, 620)
-      .lineTo(contentRight - 30, 620)
-      .lineWidth(0.5)
-      .stroke();
+// Draw the official stamp
+if (fs.existsSync(stampPath)) {
+    try {
+        doc.image(stampPath, contentRight - 150, 552, {
+            width: 78,
+        });
+    } catch (err) {
+        console.error("Could not load stamp:", err);
+    }
+}
 
-    doc
-      .font("Helvetica")
-      .fontSize(10)
-      .text(
-        "Authorised Signatory",
-        contentRight - 210,
-        628,
-        {
-          width: 210,
-          align: "center",
-        }
-      );
+// Signature line
+doc
+  .moveTo(contentRight - 180, 650)
+  .lineTo(contentRight - 30, 650)
+  .lineWidth(0.5)
+  .stroke();
+
+doc
+  .font("Helvetica")
+  .fontSize(10)
+  .text(
+    "Authorised Signatory",
+    contentRight - 210,
+    658,
+    {
+      width: 210,
+      align: "center",
+    }
+  );
 
     // Footer
     doc
@@ -381,7 +422,7 @@ function generateReceipt(name, amount, date, transactionId) {
       .font("Helvetica")
       .fontSize(9)
       .text(
-        "This is a computer-generated acknowledgement of donation.",
+        "This is a computer-generated donation receipt issued by Jeevan Ankur Trust and does not require a physical signature.",
         contentLeft,
         705,
         {
