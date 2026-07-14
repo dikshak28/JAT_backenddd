@@ -365,7 +365,7 @@ doc
 // Draw the official stamp
 if (fs.existsSync(stampPath)) {
     try {
-        doc.image(stampPath, contentRight - 150, 560, {
+        doc.image(stampPath, contentRight - 150, 620, {
             width: 78,
         });
     } catch (err) {
