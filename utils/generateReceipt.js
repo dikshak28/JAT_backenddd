@@ -355,7 +355,7 @@ doc
   .text(
     "For JEEVAN ANKUR TRUST",
     contentRight - 210,
-    580,
+    560,
     {
       width: 210,
       align: "center",
@@ -365,7 +365,7 @@ doc
 // Draw the official stamp
 if (fs.existsSync(stampPath)) {
     try {
-        doc.image(stampPath, contentRight - 150, 600, {
+        doc.image(stampPath, contentRight - 150, 580, {
             width: 78,
         });
     } catch (err) {
@@ -375,8 +375,8 @@ if (fs.existsSync(stampPath)) {
 
 // Signature line
 doc
-  .moveTo(contentRight - 180, 655)
-  .lineTo(contentRight - 30, 655)
+  .moveTo(contentRight - 180, 670)
+  .lineTo(contentRight - 30, 670)
   .lineWidth(0.5)
   .stroke();
 
@@ -386,7 +386,7 @@ doc
   .text(
     "Authorised Signatory",
     contentRight - 210,
-    668,
+    678,
     {
       width: 210,
       align: "center",
