@@ -169,10 +169,10 @@ if (fs.existsSync(logoPath)) {
     try {
         doc.image(
             logoPath,
-            pageWidth / 2 - 35,
-            48,
+            pageWidth / 2 - 50,
+            40,
             {
-                width: 70
+                width: 100
             }
         );
     } catch (err) {
@@ -298,39 +298,24 @@ doc
     doc
       .font("Helvetica-Bold")
       .fontSize(11)
-      .text("PAYMENT DETAILS", contentLeft, 380);
+      .text("PAYMENT DETAILS", contentLeft, 430);
 
     doc
       .font("Helvetica")
       .fontSize(11)
-      .text(
-        "Payment Mode:",
-        contentLeft,
-        410
-      );
+      .text("Payment Mode:", contentLeft, 460);
 
     doc
       .font("Helvetica-Bold")
-      .text(
-        "Online Payment - Razorpay",
-        contentLeft + 120,
-        410
-      );
+      .text("Online Payment - Razorpay", contentLeft + 120, 460);
 
     doc
       .font("Helvetica")
-      .text(
-        "Payment ID:",
-        contentLeft,
-        438
-      );
+      .text("Payment ID:", contentLeft, 488);
 
     doc
       .font("Helvetica-Bold")
-      .text(
-        transactionId,
-        contentLeft + 120,
-        438,
+      .text(transactionId, contentLeft + 120, 488,
         {
           width: contentWidth - 120,
         }
@@ -338,33 +323,29 @@ doc
 
     doc
       .font("Helvetica")
-      .text("Towards:", contentLeft, 466);
+      .text("Towards:", contentLeft, 516);
 
     doc
       .font("Helvetica-Bold")
-      .text(
-        "Voluntary Donation",
-        contentLeft + 120,
-        466
-      );
+      .text("Voluntary Donation", contentLeft + 120, 516);
 
     // Amount box
     doc
       .lineWidth(1.5)
-      .rect(contentLeft, 510, 210, 65)
+      .rect(contentLeft, 560, 210, 65)
       .stroke();
 
     doc
       .font("Helvetica-Bold")
       .fontSize(11)
-      .text("DONATION AMOUNT", contentLeft + 15, 522);
+      .text("DONATION AMOUNT", contentLeft + 15, 572);
 
     doc
       .fontSize(22)
       .text(
         `Rs. ${numericAmount.toLocaleString("en-IN")}`,
         contentLeft + 15,
-        542
+        592
       );
 
     // Signature section
@@ -374,7 +355,7 @@ doc
   .text(
     "For JEEVAN ANKUR TRUST",
     contentRight - 210,
-    530,
+    580,
     {
       width: 210,
       align: "center",
@@ -384,7 +365,7 @@ doc
 // Draw the official stamp
 if (fs.existsSync(stampPath)) {
     try {
-        doc.image(stampPath, contentRight - 150, 552, {
+        doc.image(stampPath, contentRight - 150, 602, {
             width: 78,
         });
     } catch (err) {
@@ -394,8 +375,8 @@ if (fs.existsSync(stampPath)) {
 
 // Signature line
 doc
-  .moveTo(contentRight - 180, 650)
-  .lineTo(contentRight - 30, 650)
+  .moveTo(contentRight - 180, 700)
+  .lineTo(contentRight - 30, 700)
   .lineWidth(0.5)
   .stroke();
 
@@ -405,7 +386,7 @@ doc
   .text(
     "Authorised Signatory",
     contentRight - 210,
-    658,
+    708,
     {
       width: 210,
       align: "center",
