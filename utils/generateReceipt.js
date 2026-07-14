@@ -365,7 +365,7 @@ doc
 // Draw the official stamp
 if (fs.existsSync(stampPath)) {
     try {
-        doc.image(stampPath, contentRight - 150, 602, {
+        doc.image(stampPath, contentRight - 150, 560, {
             width: 78,
         });
     } catch (err) {
@@ -375,8 +375,8 @@ if (fs.existsSync(stampPath)) {
 
 // Signature line
 doc
-  .moveTo(contentRight - 180, 700)
-  .lineTo(contentRight - 30, 700)
+  .moveTo(contentRight - 180, 660)
+  .lineTo(contentRight - 30, 660)
   .lineWidth(0.5)
   .stroke();
 
@@ -386,7 +386,7 @@ doc
   .text(
     "Authorised Signatory",
     contentRight - 210,
-    708,
+    668,
     {
       width: 210,
       align: "center",
