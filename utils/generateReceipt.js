@@ -365,7 +365,7 @@ doc
 // Draw the official stamp
 if (fs.existsSync(stampPath)) {
     try {
-        doc.image(stampPath, contentRight - 150, 620, {
+        doc.image(stampPath, contentRight - 150, 600, {
             width: 78,
         });
     } catch (err) {
@@ -375,8 +375,8 @@ if (fs.existsSync(stampPath)) {
 
 // Signature line
 doc
-  .moveTo(contentRight - 180, 660)
-  .lineTo(contentRight - 30, 660)
+  .moveTo(contentRight - 180, 655)
+  .lineTo(contentRight - 30, 655)
   .lineWidth(0.5)
   .stroke();
 
