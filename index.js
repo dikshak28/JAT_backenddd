@@ -10,6 +10,7 @@ dotenv.config();
 const app = express();
 app.use(express.static(path.join(__dirname, "..")));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 const paymentRoutes = require("./payment");
@@ -18,10 +19,19 @@ app.use("/api/payment", paymentRoutes);
 const donationRoutes = require("./donations");
 app.use("/api/donations", donationRoutes);
 
+const adminRoutes = require("./routes/admin");
+app.use("/api/admin", adminRoutes);
+
+const teamRoutes = require("./routes/teamRoutes");
+app.use("/api/team", teamRoutes);
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI, {})
-  .then(() => console.log("✅ MongoDB Connected!"))
+  .then(() => {
+    console.log("✅ MongoDB Connected!");
+    console.log("Database:", mongoose.connection.name);
+})
   .catch((err) => console.error("MongoDB Connection Error:", err));
 
 // Define Mongoose Schemas
